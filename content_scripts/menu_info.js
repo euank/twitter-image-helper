@@ -4,11 +4,15 @@ function origUrl(url) {
   if(url === null || url === "") {
     throw new Error("must pass a url");
   }
-  var ndx = url.lastIndexOf(":");
+  var anchor = document.createElement("a");
+  anchor.href = url;
+  var ndx = anchor.pathname.lastIndexOf(":");
   if(ndx >= 0) {
-    return url.slice(0, ndx) + ":orig";
+    anchor.pathname = anchor.pathname.slice(0, ndx) + ":orig";
+  } else {
+    anchor.pathname += ":orig";
   }
-  return url + ":orig";
+  return anchor.href;
 }
 
 document.addEventListener('contextmenu', function(ev) {
