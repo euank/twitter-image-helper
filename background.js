@@ -1,5 +1,15 @@
 var lastOrigUrl = null;
 
+// The content-script -> background communication is used because it's
+// inconvenient to access the page dom here and, furthermore, the 'contextMenu
+// -> onClicked' event has no information about the element the right click
+// menu is for.
+// 
+// We listen for the click that probably opened this context menu from the
+// browser-side of things and then send the message over.
+// 
+// I haven't found a reason why this might end up being stale yet, though it's
+// possible there are cases where it will be.
 browser.runtime.onMessage.addListener(function(ev) {
   if(ev.twitterOrigUrl) {
     lastOrigUrl = ev.twitterOrigUrl;
@@ -23,6 +33,10 @@ browser.contextMenus.create({
 }, onCreated);
 
 browser.contextMenus.onClicked.addListener(function(info, tab) {
+  if(lastOrigUrl === null) {
+    console.log(`twitter-image-helper: unexpected context menu event with null url: ${info}`);
+    return;
+  }
   switch (info.menuItemId) {
     case "twitter-img":
       browser.tabs.create({
