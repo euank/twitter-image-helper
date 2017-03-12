@@ -9,7 +9,8 @@
   },
   
   "permissions": [
-    "contextMenus"
+    "contextMenus",
+    "activeTab"
   ],
   "content_scripts": [{
     "matches": ["*://*.twitter.com/*"],

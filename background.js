@@ -28,8 +28,29 @@ function onError(err) {
 
 browser.contextMenus.create({
   id: "twitter-img",
-  title: "Twitter: open original",
+  title: "twitter image helper",
   documentUrlPatterns: ["*://*.twitter.com/*"],
+}, onCreated);
+
+browser.contextMenus.create({
+  id: "twitter-img-open",
+  title: "Open original",
+  parentId: "twitter-img",
+}, onCreated);
+
+browser.contextMenus.create({
+  id: "twitter-img-copy",
+  title: "Copy original url",
+  parentId: "twitter-img",
+}, onCreated);
+
+var newTabChecked = true;
+browser.contextMenus.create({
+  type: "checkbox",
+  id: "twitter-img-newtab",
+  title: "Open in newtab?",
+  parentId: "twitter-img",
+  checked: newTabChecked,
 }, onCreated);
 
 browser.contextMenus.onClicked.addListener(function(info, tab) {
@@ -38,10 +59,19 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
     return;
   }
   switch (info.menuItemId) {
-    case "twitter-img":
-      browser.tabs.create({
-        "url": lastOrigUrl,
-      });
+    case "twitter-img-open":
+      if(newTabChecked) {
+        browser.tabs.create({
+          "url": lastOrigUrl,
+        });
+      } else {
+        browser.tabs.executeScript({
+          code: `document.location = "${lastOrigUrl}";`,
+        });
+      }
+      break;
+    case "twitter-img-newtab":
+      newTabChecked = !newTabChecked;
       break;
   }
 });
