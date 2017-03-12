@@ -1,6 +1,9 @@
 
 // origUrl attempts to convert a twitter image url into its ":orig" form.
 function origUrl(url) {
+  if(url === null || url === "") {
+    throw new Error("must pass a url");
+  }
   var ndx = url.lastIndexOf(":");
   if(ndx >= 0) {
     return url.slice(0, ndx) + ":orig";
