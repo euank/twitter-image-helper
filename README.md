@@ -17,7 +17,13 @@ Also, the preview image isn't always full size (`:orig` vs `:thumb`).
 
 But of course. Here's how I used to open images before this extension, and how I do it now that I've got it.
 
+The scenario is that I click on a gallery, and then decide I want to copy the second image.
+
+### Before
+
 ![before-extension](https://cloud.githubusercontent.com/assets/2147649/23837201/d42110b4-0741-11e7-944b-e00d06977955.gif)
+
+### After
 
 ![after-extension](https://cloud.githubusercontent.com/assets/2147649/23837209/ff374cdc-0741-11e7-86ff-ed1a2aca9d29.gif)
 
