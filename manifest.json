@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "twitter-image-rightclick",
+  "description": "asdf",
+  "version": "1.0",
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+  
+  "permissions": [
+    "contextMenus"
+  ],
+  "content_scripts": [{
+    "matches": ["*://*.twitter.com/*"],
+    "js": ["content_scripts/menu_info.js"]
+  }]
+}
