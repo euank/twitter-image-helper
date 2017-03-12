@@ -28,6 +28,10 @@ The scenario is that I click on a gallery, and then decide I want to copy the se
 ![after-extension](https://cloud.githubusercontent.com/assets/2147649/23837209/ff374cdc-0741-11e7-86ff-ed1a2aca9d29.gif)
 
 
+# Contributions
+
+Very welcome!
+
 # License
 
 AGPL
