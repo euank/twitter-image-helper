@@ -34,6 +34,12 @@ browser.contextMenus.create({
 
 browser.contextMenus.create({
   id: "twitter-img-open",
+  title: "Open original (tab)",
+  parentId: "twitter-img",
+}, onCreated);
+
+browser.contextMenus.create({
+  id: "twitter-img-open-inplace",
   title: "Open original",
   parentId: "twitter-img",
 }, onCreated);
@@ -44,14 +50,6 @@ browser.contextMenus.create({
   parentId: "twitter-img",
 }, onCreated);
 
-var newTabChecked = true;
-browser.contextMenus.create({
-  type: "checkbox",
-  id: "twitter-img-newtab",
-  title: "Open in newtab?",
-  parentId: "twitter-img",
-  checked: newTabChecked,
-}, onCreated);
 
 browser.contextMenus.onClicked.addListener(function(info, tab) {
   if(lastOrigUrl === null) {
@@ -60,15 +58,14 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
   }
   switch (info.menuItemId) {
     case "twitter-img-open":
-      if(newTabChecked) {
-        browser.tabs.create({
-          "url": lastOrigUrl,
-        });
-      } else {
-        browser.tabs.executeScript({
-          code: `document.location = "${lastOrigUrl}";`,
-        });
-      }
+      browser.tabs.create({
+        "url": lastOrigUrl,
+      });
+      break;
+    case "twitter-img-open-inplace":
+      browser.tabs.executeScript({
+        code: `document.location = "${lastOrigUrl}";`,
+      });
       break;
     case "twitter-img-newtab":
       newTabChecked = !newTabChecked;
