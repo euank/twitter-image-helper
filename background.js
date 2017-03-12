@@ -44,12 +44,6 @@ browser.contextMenus.create({
   parentId: "twitter-img",
 }, onCreated);
 
-browser.contextMenus.create({
-  id: "twitter-img-copy",
-  title: "Copy original url",
-  parentId: "twitter-img",
-}, onCreated);
-
 
 browser.contextMenus.onClicked.addListener(function(info, tab) {
   if(lastOrigUrl === null) {
@@ -66,9 +60,6 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
       browser.tabs.executeScript({
         code: `document.location = "${lastOrigUrl}";`,
       });
-      break;
-    case "twitter-img-newtab":
-      newTabChecked = !newTabChecked;
       break;
   }
 });
