@@ -1,5 +1,8 @@
 # twitter-image-helper
+
 A webextension to make opening twitter images easier from twitter-web
+
+Available for firefox [here](https://addons.mozilla.org/en-US/firefox/addon/twitter-image-helper/).
 
 ## Can you seriously not figure out how to right-click -> view image?
 
