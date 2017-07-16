@@ -11,7 +11,7 @@ var lastOrigUrl = null;
 // I haven't found a reason why this might end up being stale yet, though it's
 // possible there are cases where it will be.
 browser.runtime.onMessage.addListener(function(ev) {
-  if(ev.twitterOrigUrl) {
+  if(ev.hasOwnProperty('twitterOrigUrl')) {
     lastOrigUrl = ev.twitterOrigUrl;
   }
 });
@@ -46,6 +46,10 @@ browser.contextMenus.create({
 
 
 browser.contextMenus.onClicked.addListener(function(info, tab) {
+  if(lastOrigUrl === "") {
+    // Indicates the right click menu has been 'cleared' by clicking on a non-recognized thing
+    return;
+  }
   if(lastOrigUrl === null) {
     console.log(`twitter-image-helper: unexpected context menu event with null url: ${info}`);
     return;

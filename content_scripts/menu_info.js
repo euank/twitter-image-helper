@@ -33,4 +33,6 @@ document.addEventListener('contextmenu', function(ev) {
     browser.runtime.sendMessage({twitterOrigUrl: origUrl(media.src)});
     return;
   }
+  // Otherwise it wasn't a twitter url, clear the "open" url
+  browser.runtime.sendMessage({twitterOrigUrl: ""});
 });
