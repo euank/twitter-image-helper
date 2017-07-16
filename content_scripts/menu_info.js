@@ -33,6 +33,17 @@ document.addEventListener('contextmenu', function(ev) {
     browser.runtime.sendMessage({twitterOrigUrl: origUrl(media.src)});
     return;
   }
+
+  if(el.parentElement && el.parentElement.classList.contains('player-container')) {
+    let media = el.parentElement.querySelector('.player-wrapper > .video-display > video');
+    if(media === null) {
+      console.log('unexpected null media from element: ', el);
+      return;
+    }
+    browser.runtime.sendMessage({twitterOrigUrl: media.src});
+    return;
+  }
+
   // Otherwise it wasn't a twitter url, clear the "open" url
   browser.runtime.sendMessage({twitterOrigUrl: ""});
 });
