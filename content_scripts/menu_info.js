@@ -34,16 +34,26 @@ document.addEventListener('contextmenu', function(ev) {
     return;
   }
 
-  if(el.parentElement && el.parentElement.classList.contains('player-container')) {
-    let media = el.parentElement.querySelector('.player-wrapper > .video-display > video');
-    if(media === null) {
-      console.log('unexpected null media from element: ', el);
+  // Allow right clicks on tweet-body for videos; you can't right click on
+  // videos in current twitter.
+  let tweetParent = el.closest('.permalink-tweet-container');
+  if(tweetParent) {
+    let vid = findTwitterVideo(tweetParent);
+    if(vid) {
+      browser.runtime.sendMessage({twitterOrigUrl: vid});
       return;
     }
-    browser.runtime.sendMessage({twitterOrigUrl: media.src});
-    return;
   }
 
   // Otherwise it wasn't a twitter url, clear the "open" url
   browser.runtime.sendMessage({twitterOrigUrl: ""});
 });
+
+
+function findTwitterVideo(el) {
+  let vid = el.querySelector('.PlayableMedia video');
+  if(vid && /mp4$/.test(vid.src)) {
+    return vid.src;
+  }
+  return null;
+}
