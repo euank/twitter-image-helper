@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "twitter-image-helper",
   "description": "This addon provides an additional context menu on Twitter's default webpage. This menu allows easier opening of images, even in the gallery view where such images are harder to access. Furthermore, it ensures the original quality image url is opened.",
-  "version": "0.3.0",
+  "version": "0.4.0",
 
   "background": {
     "scripts": ["background.js"]
