@@ -15,6 +15,16 @@ function origUrl(url) {
   return anchor.href;
 }
 
+function getFileName(url) {
+  let fileName = url.substring(url.lastIndexOf('/') + 1);
+  let ndx = fileName.lastIndexOf(":");
+  if(ndx >= 0) {
+    fileName = fileName.slice(0, ndx);
+  }
+  
+  return fileName;
+}
+
 document.addEventListener('contextmenu', function(ev) {
   let el = ev.target;
   if(el.tagName == "IMG") {
@@ -22,7 +32,9 @@ document.addEventListener('contextmenu', function(ev) {
       return;
     }
     // TODO: maybe we should validate it's really a twitter url
-    browser.runtime.sendMessage({twitterOrigUrl: origUrl(el.src)});
+   
+    let fileName = getFileName(el.src);
+    browser.runtime.sendMessage({twitterOrigUrl: origUrl(el.src), fileName: fileName});
     return;
   }
   if(el.parentElement && el.parentElement.classList.contains("Gallery-content")) {
@@ -30,7 +42,8 @@ document.addEventListener('contextmenu', function(ev) {
     if(media === null) {
       return;
     }
-    browser.runtime.sendMessage({twitterOrigUrl: origUrl(media.src)});
+    let fileName = getFileName(media.src);
+    browser.runtime.sendMessage({twitterOrigUrl: origUrl(media.src), fileName: fileName});
     return;
   }
 
@@ -40,13 +53,13 @@ document.addEventListener('contextmenu', function(ev) {
   if(tweetParent) {
     let vid = findTwitterVideo(tweetParent);
     if(vid) {
-      browser.runtime.sendMessage({twitterOrigUrl: vid});
+      browser.runtime.sendMessage({twitterOrigUrl: vid, fileName: vid});
       return;
     }
   }
 
   // Otherwise it wasn't a twitter url, clear the "open" url
-  browser.runtime.sendMessage({twitterOrigUrl: ""});
+  browser.runtime.sendMessage({twitterOrigUrl: "", fileName: ""});
 });
 
 

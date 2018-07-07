@@ -1,4 +1,5 @@
 var lastOrigUrl = null;
+var fileName = null;
 
 // The content-script -> background communication is used because it's
 // inconvenient to access the page dom here and, furthermore, the 'contextMenu
@@ -14,6 +15,10 @@ browser.runtime.onMessage.addListener(function(ev) {
   if(ev.hasOwnProperty('twitterOrigUrl')) {
     lastOrigUrl = ev.twitterOrigUrl;
   }
+  
+  if(ev.hasOwnProperty('fileName')) {
+    fileName = ev.fileName;
+  }
 });
 
 function onCreated(n) {
@@ -28,29 +33,35 @@ function onError(err) {
 
 browser.contextMenus.create({
   id: "twitter-img",
-  title: "twitter image helper",
+  title: "Twitter Image Helper",
   documentUrlPatterns: ["*://*.twitter.com/*"],
 }, onCreated);
 
 browser.contextMenus.create({
   id: "twitter-img-open",
-  title: "Open original (tab)",
+  title: "Open Original (tab)",
   parentId: "twitter-img",
 }, onCreated);
 
 browser.contextMenus.create({
   id: "twitter-img-open-inplace",
-  title: "Open original",
+  title: "Open Original",
+  parentId: "twitter-img",
+}, onCreated);
+
+browser.contextMenus.create({
+  id: "twitter-img-download",
+  title: "Download Original",
   parentId: "twitter-img",
 }, onCreated);
 
 
 browser.contextMenus.onClicked.addListener(function(info, tab) {
-  if(lastOrigUrl === "") {
+  if(lastOrigUrl === "" || fileName === "") {
     // Indicates the right click menu has been 'cleared' by clicking on a non-recognized thing
     return;
   }
-  if(lastOrigUrl === null) {
+  if(lastOrigUrl === null || fileName === null) {
     console.log(`twitter-image-helper: unexpected context menu event with null url: ${info}`);
     return;
   }
@@ -58,12 +69,21 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
     case "twitter-img-open":
       browser.tabs.create({
         "url": lastOrigUrl,
+        "active" : false,
       });
       break;
     case "twitter-img-open-inplace":
       browser.tabs.executeScript({
         code: `document.location = "${lastOrigUrl}";`,
       });
+      break;
+    case "twitter-img-download":
+      var downloading = browser.downloads.download({
+        url: lastOrigUrl,
+        saveAs: false,
+        filename: fileName // Optional
+      });
+      downloading.then(function(id) {/* console.log('triggering download: ', lastOrigUrl, fileName, id);*/}, onError);
       break;
   }
 });

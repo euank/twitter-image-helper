@@ -10,7 +10,8 @@
   
   "permissions": [
     "contextMenus",
-    "activeTab"
+    "activeTab",
+    "downloads"
   ],
   "content_scripts": [{
     "matches": ["*://*.twitter.com/*"],
