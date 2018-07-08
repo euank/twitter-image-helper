@@ -68,8 +68,9 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
   switch (info.menuItemId) {
     case "twitter-img-open":
       browser.tabs.create({
-        "url": lastOrigUrl,
-        "active" : false,
+        url: lastOrigUrl,
+        active: false,
+        openerTabId: tab.id,
       });
       break;
     case "twitter-img-open-inplace":
