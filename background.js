@@ -81,7 +81,6 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
     case "twitter-img-download":
       var downloading = browser.downloads.download({
         url: lastOrigUrl,
-        saveAs: false,
         filename: fileName // Optional
       });
       downloading.then(function(id) {/* console.log('triggering download: ', lastOrigUrl, fileName, id);*/}, onError);
