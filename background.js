@@ -1,3 +1,23 @@
+const targetBrowser = (() => {
+  if (typeof chrome !== "undefined" && typeof browser !== "undefined") {
+    return 'firefox';
+  } else if (typeof chrome !== "undefined") {
+    return 'chrome';
+  } else {
+    return 'unknown';
+  }
+})()
+
+window.browser = (() => {
+  if (typeof browser !== "undefined") {
+    return browser;
+  } else if (typeof chrome !== "undefined") {
+    return chrome;
+  } else {
+    throw new Error("no webextension support in browser");
+  }
+})();
+
 var lastOrigUrl = null;
 var fileName = null;
 
@@ -23,36 +43,40 @@ browser.runtime.onMessage.addListener(function(ev) {
 
 function onCreated(n) {
   if (browser.runtime.lastError) {
-    console.log(`twitter-image-helper: error: ${browser.runtime.lastError}`);
+    console.log('twitter-image-helper: error:', browser.runtime.lastError);
   }
 }
 
 function onError(err) {
-  console.log(`twitter-image-helper: error: ${error}`);
+  console.log('twitter-image-helper: error:', err);
 }
 
 browser.contextMenus.create({
   id: "twitter-img",
   title: "Twitter Image Helper",
   documentUrlPatterns: ["*://*.twitter.com/*"],
+  contexts: ["all"],
 }, onCreated);
 
 browser.contextMenus.create({
   id: "twitter-img-open",
   title: "Open Original (tab)",
   parentId: "twitter-img",
+  contexts: ["all"],
 }, onCreated);
 
 browser.contextMenus.create({
   id: "twitter-img-open-inplace",
   title: "Open Original",
   parentId: "twitter-img",
+  contexts: ["all"],
 }, onCreated);
 
 browser.contextMenus.create({
   id: "twitter-img-download",
   title: "Download Original",
   parentId: "twitter-img",
+  contexts: ["all"],
 }, onCreated);
 
 
@@ -79,11 +103,38 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
       });
       break;
     case "twitter-img-download":
-      var downloading = browser.downloads.download({
+      var downloading = startDownload({
         url: lastOrigUrl,
-        filename: fileName // Optional
+        filename: fileName,
       });
-      downloading.then(function(id) {/* console.log('triggering download: ', lastOrigUrl, fileName, id);*/}, onError);
+      downloading.then(() => {}, onError);
       break;
   }
 });
+
+// startDownload encodes the difference between the chrome and firefox download
+// apis; it does the minimal amount of work to start a download since that's
+// the only bit that differs between the two apis.
+// Note: the mozilla/webextension-polyfill module could also be used, but it's rather heavy.
+function startDownload(url) {
+  const cleanedFilename = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const downloadObj = {
+    url: lastOrigUrl,
+    filename: cleanedFilename,
+  };
+  switch (targetBrowser) {
+    case "chrome":
+      return new Promise(function(resolve, reject) {
+        chrome.downloads.download(downloadObj, function(id) {
+          if (id) {
+            resolve(id);
+          } else {
+            reject(browser.runtime.lastError);
+          }
+        });
+      });
+    default:
+      const downloading = browser.downloads.download(downloadObj);
+      return downloading;
+  }
+}
