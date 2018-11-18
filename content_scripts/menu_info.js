@@ -1,28 +1,45 @@
-
 // origUrl attempts to convert a twitter image url into its ":orig" form.
 function origUrl(url) {
   if(url === null || url === "") {
     throw new Error("must pass a url");
   }
-  let anchor = document.createElement("a");
-  anchor.href = url;
-  let ndx = anchor.pathname.lastIndexOf(":");
-  if(ndx >= 0) {
-    anchor.pathname = anchor.pathname.slice(0, ndx) + ":orig";
-  } else {
-    anchor.pathname += ":orig";
+  const u = new URL(url, window.location.href);
+  if (u.searchParams.get("format") && u.searchParams.get("name")) {
+    // mobile twitter uses urls like:
+    // https://pbs.twimg.com/media/{id}?format=jpg&name=small
+    // Replacing 'name=small' with 'name=orig' seems to be all that's needed
+    u.searchParams.set("name", "orig");
+    return u.href;
   }
-  return anchor.href;
+  let ndx = u.pathname.lastIndexOf(":");
+  if(ndx >= 0) {
+    u.pathname = u.pathname.slice(0, ndx) + ":orig";
+  } else {
+    u.pathname += ":orig";
+  }
+  return u.href;
 }
 
 function getFileName(url) {
-  let fileName = url.substring(url.lastIndexOf('/') + 1);
-  let ndx = fileName.lastIndexOf(":");
-  if(ndx >= 0) {
-    fileName = fileName.slice(0, ndx);
+  if(url === null || url === "") {
+    throw new Error("must pass a url");
   }
-  
-  return fileName;
+  const u = new URL(url, window.location.href);
+  let filename = u.pathname;
+  let ndx = filename.lastIndexOf("/");
+  if (ndx >= 0) {
+    filename = filename.slice(ndx + 1);
+  }
+  ndx = filename.lastIndexOf(":");
+  if(ndx >= 0) {
+    filename = filename.slice(0, ndx);
+  }
+  if (u.searchParams.get("format")) {
+    // mobile twitter uses urls like:
+    // https://pbs.twimg.com/media/{id}?format=jpg&name=small
+    filename += "." + u.searchParams.get("format");
+  }
+  return filename;
 }
 
 document.addEventListener('contextmenu', function(ev) {
