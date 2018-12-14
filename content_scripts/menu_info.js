@@ -1,3 +1,13 @@
+window.browser = (() => {
+  if (typeof browser !== "undefined") {
+    return browser;
+  } else if (typeof chrome !== "undefined") {
+    return chrome;
+  } else {
+    throw new Error("no webextension support in browser");
+  }
+})();
+
 // origUrl attempts to convert a twitter image url into its ":orig" form.
 function origUrl(url) {
   if(url === null || url === "") {
