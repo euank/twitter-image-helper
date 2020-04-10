@@ -74,33 +74,35 @@ document.addEventListener('contextmenu', function(ev) {
     return;
   }
 
-  // Allow right clicks on tweet-body for videos; you can't right click on
-  // videos in current twitter.
-  let tweetParent = el.closest('.permalink-tweet-container');
-  if(tweetParent) {
-    let vid = findTwitterVideo(tweetParent);
-    if(vid) {
-      browser.runtime.sendMessage({twitterOrigUrl: vid, fileName: vid});
-      return;
-    }
+  // Twitter has reworked their web UI to be really bad for the purpose of
+  // finding media. Oh well, let's do an icky hack.
+  // Assume the user did right clock on a tweet with a valid video, so just
+  // find the nearest video and use it.
+  let vid = findClosestVideo(el);
+  if(vid) {
+    browser.runtime.sendMessage({twitterOrigUrl: vid, fileName: vid});
+    return;
   }
 
   // Otherwise it wasn't a twitter url, clear the "open" url
   browser.runtime.sendMessage({twitterOrigUrl: "", fileName: ""});
 });
 
-
-function findTwitterVideo(el) {
-  let vidSource = el.querySelectorAll('.PlayableMedia video source');
-  for (let i = 0; i < vidSource.length; i++) {
-    if(vidSource[i] && /mp4$/.test(vidSource[i].src)) {
-      return vidSource[i].src;
+// Just walk up the dom tree looking for all videos
+function findClosestVideo(el) {
+  while (el) {
+    let vid = findClosestVideoHelper(el);
+    if (vid) {
+      return vid;
     }
+    el = el.parentElement;
   }
-  // twitter used to have <video src= instead of <video><source> ...; try this
-  // too in case it still shows up somewhere.
-  let vid = el.querySelector('.PlayableMedia video');
-  if(vid && /mp4$/.test(vid.src)) {
+  return null;
+}
+
+function findClosestVideoHelper(el) {
+  let vid = el.querySelector('video');
+  if (vid && vid.src && /mp4$/.test(vid.src)) {
     return vid.src;
   }
   return null;
