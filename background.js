@@ -25,17 +25,17 @@ var fileName = null;
 // inconvenient to access the page dom here and, furthermore, the 'contextMenu
 // -> onClicked' event has no information about the element the right click
 // menu is for.
-// 
+//
 // We listen for the click that probably opened this context menu from the
 // browser-side of things and then send the message over.
-// 
+//
 // I haven't found a reason why this might end up being stale yet, though it's
 // possible there are cases where it will be.
 browser.runtime.onMessage.addListener(function(ev) {
   if(ev.hasOwnProperty('twitterOrigUrl')) {
     lastOrigUrl = ev.twitterOrigUrl;
   }
-  
+
   if(ev.hasOwnProperty('fileName')) {
     fileName = ev.fileName;
   }

@@ -59,7 +59,7 @@ document.addEventListener('contextmenu', function(ev) {
       return;
     }
     // TODO: maybe we should validate it's really a twitter url
-   
+
     let fileName = getFileName(el.src);
     browser.runtime.sendMessage({twitterOrigUrl: origUrl(el.src), fileName: fileName});
     return;
