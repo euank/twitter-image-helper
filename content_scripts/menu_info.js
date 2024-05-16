@@ -74,36 +74,6 @@ document.addEventListener('contextmenu', function(ev) {
     return;
   }
 
-  // Twitter has reworked their web UI to be really bad for the purpose of
-  // finding media. Oh well, let's do an icky hack.
-  // Assume the user did right clock on a tweet with a valid video, so just
-  // find the nearest video and use it.
-  let vid = findClosestVideo(el);
-  if(vid) {
-    browser.runtime.sendMessage({twitterOrigUrl: vid, fileName: vid});
-    return;
-  }
-
   // Otherwise it wasn't a twitter url, clear the "open" url
   browser.runtime.sendMessage({twitterOrigUrl: "", fileName: ""});
 });
-
-// Just walk up the dom tree looking for all videos
-function findClosestVideo(el) {
-  while (el) {
-    let vid = findClosestVideoHelper(el);
-    if (vid) {
-      return vid;
-    }
-    el = el.parentElement;
-  }
-  return null;
-}
-
-function findClosestVideoHelper(el) {
-  let vid = el.querySelector('video');
-  if (vid && vid.src && /mp4$/.test(vid.src)) {
-    return vid.src;
-  }
-  return null;
-}
