@@ -54,7 +54,10 @@ function onError(err) {
 browser.contextMenus.create({
   id: "twitter-img",
   title: "Twitter Image Helper",
-  documentUrlPatterns: ["*://*.twitter.com/*"],
+  documentUrlPatterns: [
+    "*://*.twitter.com/*",
+    "*://*.x.com/*",
+  ],
   contexts: ["all"],
 }, onCreated);
 
