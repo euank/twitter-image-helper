@@ -52,10 +52,15 @@ function getFileName(url) {
   return filename;
 }
 
+function clearMenuInfo() {
+  browser.runtime.sendMessage({twitterOrigUrl: "", fileName: ""});
+}
+
 document.addEventListener('contextmenu', function(ev) {
   let el = ev.target;
   if(el.tagName == "IMG") {
     if(el.src === "") {
+      clearMenuInfo();
       return;
     }
     // TODO: maybe we should validate it's really a twitter url
@@ -67,6 +72,7 @@ document.addEventListener('contextmenu', function(ev) {
   if(el.parentElement && el.parentElement.classList.contains("Gallery-content")) {
     let media = el.parentElement.querySelector(".Gallery-media > .media-image");
     if(media === null) {
+      clearMenuInfo();
       return;
     }
     let fileName = getFileName(media.src);
@@ -75,5 +81,5 @@ document.addEventListener('contextmenu', function(ev) {
   }
 
   // Otherwise it wasn't a twitter url, clear the "open" url
-  browser.runtime.sendMessage({twitterOrigUrl: "", fileName: ""});
+  clearMenuInfo();
 });
