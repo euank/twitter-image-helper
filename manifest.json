@@ -25,6 +25,9 @@
     "scripting",
     "storage"
   ],
+  "host_permissions": [
+    "*://pbs.twimg.com/media/*"
+  ],
   "content_scripts": [{
     "matches": [
       "*://*.twitter.com/*",

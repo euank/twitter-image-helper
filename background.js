@@ -87,18 +87,58 @@ function handleContextMenuClick(info, tab, state) {
     console.log(`twitter-image-helper: unexpected context menu event with null url: ${info}`);
     return;
   }
-  switch (info.menuItemId) {
-    case "twitter-img-open":
-      return browserApi.tabs.create({
-        url: lastOrigUrl,
-        active: false,
-        openerTabId: tab.id,
-      });
-    case "twitter-img-open-inplace":
-      return executeNavigateScript(tab.id, lastOrigUrl);
-    case "twitter-img-download":
-      return startDownload(lastOrigUrl, fileName);
+  return resolveOriginalUrl(lastOrigUrl).then(function(originalUrl) {
+    const originalFileName = getFileName(originalUrl);
+    switch (info.menuItemId) {
+      case "twitter-img-open":
+        return browserApi.tabs.create({
+          url: originalUrl,
+          active: false,
+          openerTabId: tab.id,
+        });
+      case "twitter-img-open-inplace":
+        return executeNavigateScript(tab.id, originalUrl);
+      case "twitter-img-download":
+        return startDownload(originalUrl, originalFileName);
+    }
+  });
+}
+
+function resolveOriginalUrl(url) {
+  const parsedUrl = new URL(url);
+  if (parsedUrl.searchParams.get("format") !== "webp" ||
+      parsedUrl.searchParams.get("name") !== "4096x4096") {
+    return Promise.resolve(url);
   }
+
+  const candidates = ["jpg", "png", "gif", "webp"].map(function(format) {
+    const candidateUrl = new URL(parsedUrl.href);
+    candidateUrl.searchParams.set("format", format);
+    candidateUrl.searchParams.set("name", "orig");
+    return fetch(candidateUrl.href, {method: "HEAD"}).then(function(response) {
+      return response.ok ? candidateUrl.href : null;
+    }).catch(function() {
+      return null;
+    });
+  });
+
+  return Promise.all(candidates).then(function(urls) {
+    return urls.find(function(candidate) { return candidate !== null; }) || url;
+  });
+}
+
+function getFileName(url) {
+  const parsedUrl = new URL(url);
+  let fileName = parsedUrl.pathname.slice(parsedUrl.pathname.lastIndexOf("/") + 1);
+  const colonIndex = fileName.lastIndexOf(":");
+  if (colonIndex >= 0) {
+    fileName = fileName.slice(0, colonIndex);
+  }
+  const format = parsedUrl.searchParams.get("format");
+  if (format) {
+    fileName += "." + format;
+  }
+  return fileName;
 }
 
 // startDownload encodes the difference between the chrome and firefox download
