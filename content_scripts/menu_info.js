@@ -18,6 +18,12 @@ function origUrl(url) {
     // mobile twitter uses urls like:
     // https://pbs.twimg.com/media/{id}?format=jpg&name=small
     // Replacing 'name=small' with 'name=orig' seems to be all that's needed
+    if (u.searchParams.get("format") === "webp") {
+      // Logged-out X uses WebP previews regardless of the original format.
+      // The background script resolves the real format when the menu is used.
+      u.searchParams.set("name", "4096x4096");
+      return u.href;
+    }
     u.searchParams.set("name", "orig");
     return u.href;
   }
@@ -56,21 +62,43 @@ function clearMenuInfo() {
   browser.runtime.sendMessage({twitterOrigUrl: "", fileName: ""});
 }
 
-document.addEventListener('contextmenu', function(ev) {
-  let el = ev.target;
-  if(el.tagName == "IMG") {
-    if(el.src === "") {
-      clearMenuInfo();
-      return;
+function findContextImage(ev) {
+  if(ev.target.tagName == "IMG") {
+    return ev.target;
+  }
+
+  // Logged-out X places a full-size link over media images and disables pointer
+  // events on the image itself. Find the largest rendered image beneath the
+  // click using its layout bounds instead of hit testing.
+  let contextImage = null;
+  let contextImageArea = 0;
+  for (const image of document.images) {
+    const rect = image.getBoundingClientRect();
+    const imageArea = rect.width * rect.height;
+    if(imageArea > contextImageArea &&
+        ev.clientX >= rect.left && ev.clientX <= rect.right &&
+        ev.clientY >= rect.top && ev.clientY <= rect.bottom) {
+      contextImage = image;
+      contextImageArea = imageArea;
     }
+  }
+  return contextImage;
+}
+
+document.addEventListener('contextmenu', function(ev) {
+  let media = findContextImage(ev);
+  if(media !== null && media.src !== "") {
     // TODO: maybe we should validate it's really a twitter url
 
-    let fileName = getFileName(el.src);
-    browser.runtime.sendMessage({twitterOrigUrl: origUrl(el.src), fileName: fileName});
+    const originalUrl = origUrl(media.src);
+    let fileName = getFileName(originalUrl);
+    browser.runtime.sendMessage({twitterOrigUrl: originalUrl, fileName: fileName});
     return;
   }
+
+  let el = ev.target;
   if(el.parentElement && el.parentElement.classList.contains("Gallery-content")) {
-    let media = el.parentElement.querySelector(".Gallery-media > .media-image");
+    media = el.parentElement.querySelector(".Gallery-media > .media-image");
     if(media === null) {
       clearMenuInfo();
       return;
